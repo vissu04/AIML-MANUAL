@@ -1,0 +1,24 @@
+from sympy import symbols, Or, Not, Implies,Xor,satisfiable
+
+# Define propositional variables
+Rain = symbols('Rain')
+Harry_Visited_Hagrid = symbols('Harry_Visited_Hagrid')
+Harry_Visited_Dumbledore = symbols('Harry_Visited_Dumbledore')
+
+# Define the logical expressions based on the given statements
+sentence_1 = Implies(Not(Rain), Harry_Visited_Hagrid)
+sentence_2 = Xor(Harry_Visited_Hagrid, Harry_Visited_Dumbledore)
+sentence_3 = Harry_Visited_Dumbledore
+
+# Combine the statements
+knowledge_base = sentence_1 & sentence_2 & sentence_3
+
+#Finding the solution
+solution = satisfiable(knowledge_base, all_models=True)
+
+#To print the output
+for model in solution:
+    if model[Rain]:
+        print("It rained today.")
+    else:
+        print("There is no rain today.")
