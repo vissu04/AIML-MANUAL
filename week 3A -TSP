@@ -1,0 +1,52 @@
+from sys import maxsize  # Import maxsize to represent an infinitely large value (for comparison)
+from itertools import permutations  # Import permutations to generate all possible orders of cities
+
+v = 4  # Number of cities (vertices), here v = 4 (cities labeled 0, 1, 2, 3)
+
+# Function to find the shortest path for the Traveling Salesman Problem
+def travellingSalesmanProblem(graph, s):
+    vertex = []  # List to store all cities excluding the start city 's'
+
+    # Loop through all the cities and add those that are not the starting city 's'
+    for i in range(v):
+        if i != s:
+            vertex.append(i)  # Add city i to the list 'vertex' if it's not the start city
+
+    # Initialize min_path to a very large value (infinity), so it can be updated with valid paths
+    min_path = maxsize
+
+    # Generate all possible permutations of the cities in 'vertex'
+    # This will give all possible orders of visiting the cities
+    next_permutation = permutations(vertex)
+
+    # Iterate through each permutation of cities
+    for i in next_permutation:
+        current_pathweight = 0  # Initialize the total distance of the current path
+        k = s  # Start at the initial city (starting city is 's')
+
+        # Loop through the cities in the current permutation
+        for j in i:
+            current_pathweight += graph[k][j]  # Add the distance from the current city 'k' to the next city 'j'
+            k = j  # Update the current city to the next city
+
+        # After visiting all cities, add the distance to return to the starting city
+        current_pathweight += graph[k][s]  # Add the distance from the last city back to the start city
+
+        # Update min_path if the current path weight is smaller than the previous min_path
+        min_path = min(min_path, current_pathweight)
+
+    # Return the shortest path found after evaluating all permutations
+    return min_path
+
+# Example graph where the value graph[i][j] represents the distance from city 'i' to city 'j'
+graph = [
+    [0, 10, 15, 20],  # Distances from city 0 to others
+    [10, 0, 35, 25],  # Distances from city 1 to others
+    [15, 35, 0, 30],  # Distances from city 2 to others
+    [20, 25, 30, 0]   # Distances from city 3 to others
+]
+
+s = 0  # Set the starting city (index 0, which is city 0)
+
+# Call the function and print the result
+print(travellingSalesmanProblem(graph, s))  # Output: 80
