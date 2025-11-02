@@ -1,0 +1,90 @@
+def aStarAlgo(start_node, stop_node):
+    open_set = {start_node}  # Set of nodes to be evaluated
+    closed_set = set()  # Set of nodes already evaluated
+    g = {}  # Dictionary to store the distance from the start node
+    parents = {}  # Dictionary to store the parent of each node
+
+    # The distance from the start node to itself is zero
+    g[start_node] = 0
+    # The start node has no parent (it is the root)
+    parents[start_node] = start_node
+
+    while open_set:
+        n = None
+
+        # Node with the lowest f() = g + heuristic() value is chosen
+        for v in open_set:
+            if n is None or g[v] + heuristic(v) < g[n] + heuristic(n):
+                n = v
+
+        # Print current node being evaluated, heuristic value and the sets
+        print(f"\nEvaluating node: {n} (g: {g[n]}, h: {heuristic(n)}, f: {g[n] + heuristic(n)})")
+        print(f"Open Set: {open_set}")
+        print(f"Closed Set: {closed_set}")
+
+        # If the goal is reached or no more nodes can be explored
+        if n == stop_node:
+            path = []
+            while parents[n] != n:
+                path.append(n)
+                n = parents[n]
+            path.append(start_node)
+            path.reverse()  # Reverse the path to get from start to goal
+            print('Path found: {}'.format(path))
+            return path
+
+        # Explore neighbors of the current node
+        print(f"Exploring neighbors of {n}:")
+        for (m, weight) in get_neighbors(n):
+            h_m = heuristic(m)  # Heuristic value of the neighbor
+            print(f"  Neighbor: {m} with weight: {weight} and h({m}): {h_m}")
+
+            if m not in open_set and m not in closed_set:
+                open_set.add(m)
+                parents[m] = n
+                g[m] = g[n] + weight
+                print(f"  Added {m} to open set with g({m}) = {g[m]} and f({m}) = {g[m] + h_m}")
+            else:
+                if g[m] > g[n] + weight:
+                    g[m] = g[n] + weight
+                    parents[m] = n
+                    if m in closed_set:
+                        closed_set.remove(m)
+                        open_set.add(m)
+                        print(f"  Updated {m} to have a shorter path with g({m}) = {g[m]} and f({m}) = {g[m] + h_m}")
+
+        open_set.remove(n)
+        closed_set.add(n)
+
+    print('Path does not exist!')
+    return None
+
+# Function to return neighbors and their distances
+def get_neighbors(v):
+    if v in Graph_nodes:
+        return Graph_nodes[v]
+    return []
+
+# Heuristic function for each node (Manhattan or other heuristic values)
+def heuristic(n):
+    H_dist = {
+        'S': 5,
+        'A': 3,
+        'B': 4,
+        'C': 2,
+        'D': 6,
+        'G': 0,
+    }
+    return H_dist.get(n, 0)
+
+# Graph representation (node -> list of (neighbor, weight))
+Graph_nodes = {
+    'S': [('A', 1), ('G', 10)],
+    'A': [('B', 2), ('C', 1)],
+    'B': [('D', 5)],
+    'C': [('D', 3), ('G', 4)],
+    'D': [('G', 2)],
+}
+
+# Run the algorithm
+aStarAlgo('S', 'G')
