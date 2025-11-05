@@ -1,0 +1,68 @@
+import pandas as pd, math
+from collections import Counter
+df=pd.read_csv("PlayTennis.csv")
+print(df)
+
+def entropy_of_list(values):
+    total = len(values)
+    counts = Counter(values)
+    probs = [count / total for count in counts.values()]
+    return entropy(probs)
+
+
+
+def info_gain(df, attribute, target):
+    total_entropy = entropy(df[target])
+    values = df[attribute].unique()
+    weighted_entropy = 0
+    for val in values:
+        subset = df[df[attribute] == val]
+        weighted_entropy += (len(subset)/len(df)) * entropy(subset[target])
+    return total_entropy - weighted_entropy
+
+
+
+def id3(df, target, attributes):
+    if len(df[target].unique()) == 1:
+        return df[target].iloc[0]
+    if not attributes:
+        return df[target].mode()[0]
+
+    # Find best attribute
+    gains = {attr: info_gain(df, attr, target) for attr in attributes}
+    best_attr = max(gains, key=gains.get)
+
+    tree = {best_attr: {}}
+    for val in df[best_attr].unique():
+        subset = df[df[best_attr] == val]
+        remaining = [a for a in attributes if a != best_attr]
+        tree[best_attr][val] = id3(subset, target, remaining)
+    return tree
+
+
+def classify(row, tree):
+    key = list(tree.keys())[0]
+    print("Key:", tree.keys())
+    print("Attribute:", key)
+    val = row[key]
+    print("Instance Attribute:", val, "TreeKeys:", tree[key].keys())
+    result = tree[key].get(val)
+    if isinstance(result, dict):
+        return classify(row, result)
+    else:
+        return result
+
+# ---- Build decision tree ----
+tree = id3(df, "Play Tennis", [c for c in df.columns if c != "Play Tennis"])
+
+
+
+test = pd.DataFrame({
+    "Outlook": ["Rain", "Sunny"],
+    "Temperature": ["Mild", "Hot"],
+    "Humidity": ["High", "High"],
+    "Wind": ["Weak", "Weak"]
+})
+
+test["Predicted"] = test.apply(classify, axis=1, args=(tree,))
+print(test)
