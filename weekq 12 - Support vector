@@ -1,39 +1,17 @@
+# SVM
 from sklearn import datasets
-import pandas as pd
-import numpy as np
-
-
-iris = datasets.load_iris()
-iris = datasets.load_iris()
-X = pd.DataFrame(iris.data)
-X.columns = ['Sepal_Length', 'Sepal_Width', 'Petal_Length', 'Petal_Width']
-print(X)
-
-
-y = pd.DataFrame(iris.target)
-y.columns = ['Targets']
-print(y)
-
-
-#Split the data into train and test samples
-x_train,x_test,y_train,y_test = train_test_split(iris.data,iris.target,test_size=0.1)
-
-
-#Fitting the model
+from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
-model=SVC()
-SVC=model.fit(x_train,y_train)
-
-
-#Predictions from the trained model
-y_pred=SVC.predict(x_test)
-
-
-#Model Evaluation
-from sklearn.metrics import classification_report, confusion_matrix
-print('Confusion Matrix')
-print(confusion_matrix(y_test,y_pred))
-print('Accuracy Ketrics')
-print(classification_report(y_test,y_pred))
-
-
+import matplotlib.pyplot as plt
+import sklearn.metrics as sm
+iris = datasets.load_iris()
+X = iris.data[:, :2]
+y = iris.target
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1)
+model = SVC(kernel='linear')
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+print("\nConfusion Matrix: ")
+print(sm.confusion_matrix(y_test, y_pred))
+print("\nClassification Report: ")
+print(sm.classification_report(y_test, y_pred))
